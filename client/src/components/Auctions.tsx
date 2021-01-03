@@ -11,7 +11,8 @@ import {
   Icon,
   Input,
   Image,
-  Loader
+  Loader,
+  Popup
 } from 'semantic-ui-react'
 
 import { createAuction, deleteAuction, getAuctions, patchAuction } from '../api/auctions-api'
@@ -145,22 +146,24 @@ export class Auctions extends React.PureComponent<AuctionsProps, AuctionsState> 
                 {auction.name}
               </Grid.Column>
               <Grid.Column width={1} floated="right">
+              <Popup content="Add an image to this auction" trigger={
                 <Button
                   icon
                   color="blue"
                   onClick={() => this.onEditButtonClick(auction.auctionId)}
                 >
                   <Icon name="pencil" />
-                </Button>
+                </Button>}/>
               </Grid.Column>
               <Grid.Column width={1} floated="right">
+                <Popup content="Delete auction" trigger={
                 <Button
                   icon
                   color="red"
                   onClick={() => this.onAuctionDelete(auction.auctionId)}
                 >
                   <Icon name="delete" />
-                </Button>
+                </Button>}/>
               </Grid.Column>
               {auction.attachmentUrl && (
                 <Image src={auction.attachmentUrl} size="small" wrapped />
