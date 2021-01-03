@@ -6,7 +6,7 @@ export enum AuctionState {
   Closed = "CLOSED"
 }
 
-export interface AuctionItem {
+export interface Auction {
   userId: string
   auctionId: string
   createdAt: string

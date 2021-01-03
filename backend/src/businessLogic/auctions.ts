@@ -1,19 +1,19 @@
 import * as uuid from 'uuid'
-import { AuctionItem, AuctionState } from '../models/AuctionItem'
+import { Auction, AuctionState } from '../models/Auction'
 import { AuctionAccess } from '../dataLayer/auctionAccess'
 import { CreateAuctionRequest } from '../requests/CreateAuctionRequest'
 import { UpdateAuctionRequest } from '../requests/UpdateAuctionRequest'
 
 const auctionAccess = new AuctionAccess()
 
-export async function getAuctions(userId: string): Promise<AuctionItem[]> {
+export async function getAuctions(userId: string): Promise<Auction[]> {
     return auctionAccess.getAuctions(userId)
 }
 
 export async function createAuction(
     newAuction: CreateAuctionRequest,
     userId: string
-): Promise<AuctionItem> {
+): Promise<Auction> {
 
     const auctionId = uuid.v4()
 

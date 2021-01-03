@@ -1,8 +1,8 @@
 import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { createLogger } from '../utils/logger'
-import { AuctionItem } from '../models/AuctionItem'
-import { UpdateAuctionRequest } from '../../requests/UpdateAuctionRequest'
+import { Auction } from '../models/Auction'
+import { UpdateAuctionRequest } from '../requests/UpdateAuctionRequest'
 
 const XAWS = AWSXRay.captureAWS(require('aws-sdk'))
 const logger = createLogger('auctionAccess')
@@ -18,7 +18,7 @@ export class AuctionAccess {
         private readonly indexName = process.env.INDEX_NAME) {
     }
 
-    async getAuctions(userId: string): Promise<AuctionItem[]> {
+    async getAuctions(userId: string): Promise<Auction[]> {
         logger.info('Getting all auction items')
 
         // define query paramaters to be used to get all auction items including a key for pagination
@@ -58,7 +58,7 @@ export class AuctionAccess {
         try {
             const allData = await getAllData(queryParams)
             logger.info('Matching Auction items: ', allData)
-            return allData as AuctionItem[]
+            return allData as Auction[]
         }
         catch (error) {
             logger.error('error from DB on getting auctions: ', { error: error })
@@ -66,7 +66,7 @@ export class AuctionAccess {
         }
     }
 
-    async createAuction(auction: AuctionItem): Promise<AuctionItem> {
+    async createAuction(auction: Auction): Promise<Auction> {
         try {
             const result = await this.docClient.put({
                 TableName: this.auctionTable,
