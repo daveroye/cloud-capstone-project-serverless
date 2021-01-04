@@ -23,6 +23,7 @@ provider:
   environment:
     AUCTIONS_TABLE: MySilentAuction-Table-v4-${self:provider.stage}
     AUCTION_INDEX_NAME: MySilentAuction-Index-v4-${self:provider.stage}
+    AUCTION_ITEMS_TABLE: MySilentAuctionItems-Table-v1-${self:provider.stage}
     IMAGES_S3_BUCKET: serverless-mysilentauction-images-droye6245-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
@@ -186,6 +187,22 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL # What attributes will be copied to an index
+
+    AuctionItemsDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: auctionId
+            AttributeType: S
+          - AttributeName: itemId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: auctionId
+            KeyType: HASH
+          - AttributeName: itemId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.AUCTION_ITEMS_TABLE}
 
     AttachmentsBucket:
       Type: AWS::S3::Bucket
