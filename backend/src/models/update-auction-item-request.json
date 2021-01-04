@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "update-auction",
+  "type": "object",
+  "properties": {
+    "name": {
+      "$ref": "#/definitions/non-empty-string"
+    },
+    "bid": {
+      "$ref": "#/definitions/non-zero-positive-integer"
+    }
+
+  },
+  "required": [
+    "name",
+    "bid"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "non-empty-string": {
+      "type": "string",
+      "minLength": 1
+    },
+    "non-zero-positive-integer": {
+        "type": "integer",
+        "minimum": 1
+    }
+  }
+}

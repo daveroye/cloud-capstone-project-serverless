@@ -38,5 +38,5 @@ export async function deleteAuction(userId: string, auctionId: string): Promise<
 }
 
 export async function generateUploadUrl(userId: string, auctionId: string): Promise<string> {
-    return await auctionAccess.generateAuctionUploadUrl(userId, auctionId)
+    return await auctionAccess.generateUploadUrl(userId, auctionId)
 }
