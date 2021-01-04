@@ -59,6 +59,29 @@ functions:
           - xray:PutTelemetryRecords
         Resource: "*"
 
+  GetAuctionItems:
+    handler: src/lambda/http/getAuctionItems.handler
+    events:
+      - http:
+          method: get
+          path: auctions/{auctionId}
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_ITEMS_TABLE}
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: "arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*"
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: "*"
+
   CreateAuction:
     handler: src/lambda/http/createAuction.handler
     events:
@@ -76,6 +99,29 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTIONS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: "*"
+
+  CreateAuctionItem:
+    handler: src/lambda/http/createAuctionItem.handler
+    events:
+      - http:
+          method: post
+          path: auctions/{auctionId}
+          cors: true
+          authorizer: Auth
+          request:
+            # Schema that will be used to validate incoming requests
+            schema:
+              application/json: ${file(src/models/create-auction-item-request.json)}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_ITEMS_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
@@ -105,6 +151,29 @@ functions:
           - xray:PutTelemetryRecords
         Resource: "*"
 
+  UpdateAuctionItem:
+    handler: src/lambda/http/updateAuctionItem.handler
+    events:
+      - http:
+          method: patch
+          path: auctions/{auctionId}/{itemId}
+          cors: true
+          authorizer: Auth
+          request:
+            # Schema that will be used to validate incoming requests
+            schema:
+              application/json: ${file(src/models/update-auction-item-request.json)}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_ITEMS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: "*"
+
   DeleteAuction:
     handler: src/lambda/http/deleteAuction.handler
     events:
@@ -124,6 +193,25 @@ functions:
           - xray:PutTelemetryRecords
         Resource: "*"
 
+  DeleteAuctionItem:
+    handler: src/lambda/http/deleteAuctionItem.handler
+    events:
+      - http:
+          method: delete
+          path: auctions/{auctionId}/{itemId}
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_ITEMS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: "*"
+
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
@@ -137,6 +225,31 @@ functions:
         Action:
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTIONS_TABLE}
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+        Resource: "arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*"
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: "*"
+
+  GenerateItemUploadUrl:
+    handler: src/lambda/http/generateItemUploadUrl.handler
+    events:
+      - http:
+          method: post
+          path: auctions/{auctionId}/{itemId}/attachment
+          cors: true
+          authorizer: Auth
+    iamRoleStatementsName: serverless-mySilentAuction-app-dev-GenItmUpldUrl-us-east-2
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_ITEMS_TABLE}
       - Effect: Allow
         Action:
           - s3:PutObject
