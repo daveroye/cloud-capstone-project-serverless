@@ -1,21 +1,23 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
-import { CreateAuctionRequest } from '../../requests/CreateAuctionRequest'
+import { CreateAuctionItemRequest } from '../../requests/CreateAuctionItemRequest'
 import { createLogger } from '../../utils/logger'
 import { getUserId } from '../utils'
-import { createAuction } from '../../businessLogic/auctions'
+import { createAuctionItem } from '../../businessLogic/auctionItems'
 
-const logger = createLogger('createAuctions')
+const logger = createLogger('createAuctionItems')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const newAuction: CreateAuctionRequest = JSON.parse(event.body)
-  logger.info('Creating Auction: ', newAuction)
+  const newAuctionItem: CreateAuctionItemRequest = JSON.parse(event.body)
+  logger.info('Creating Auction Item: ', newAuctionItem)
+
+  const auctionId = event.pathParameters.auctionId
 
   // get user ID from incoming request
   const userId = getUserId(event)
   logger.info('User ID: ', { userId: userId })
 
-  const newItem = await createAuction(newAuction, userId)
+  const newItem = await createAuctionItem(newAuctionItem, auctionId, userId)
 
   if (!newItem) {
     return {

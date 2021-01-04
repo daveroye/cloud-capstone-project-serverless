@@ -1,21 +1,19 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import { createLogger } from '../../utils/logger'
-import { getUserId } from '../utils'
-import { getAuctions } from '../../businessLogic/auctions'
+import { getAuctionItems } from '../../businessLogic/auctionItems'
 
-const logger = createLogger('getAuctions')
+const logger = createLogger('getAuctionItems')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  // get auction ID from path
+  const auctionId = event.pathParameters.auctionId
+  logger.info('Getting auction items for auction: ', { auctionId: auctionId })
 
-  // get user ID from incoming request
-  const userId = getUserId(event)
-  logger.info('User ID: ', { userId: userId })
+  // fetch list of auction items
+  const auctionItems = await getAuctionItems(auctionId)
 
-  // fetch list of user's auctions
-  const auctions = await getAuctions(userId)
-
-  if (!auctions) {
+  if (!auctionItems) {
     return {
       statusCode: 500,
       headers: {
@@ -33,7 +31,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         'Access-Control-Allow-Origin': '*'
       },
       body: JSON.stringify({
-        items: auctions
+        items: auctionItems
       })
     }
   }

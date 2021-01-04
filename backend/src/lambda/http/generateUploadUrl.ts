@@ -14,9 +14,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const id = getUserId(event)
   logger.info('User ID: ', { userId: id })
 
-  try {
-    const signedURL = await generateUploadUrl(id, auctionId)
-
+  const signedURL = await generateUploadUrl(id, auctionId)
+  if (signedURL) {
     return {
       statusCode: 200,
       headers: {
@@ -27,15 +26,13 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       })
     }
   }
-  catch (error) {
+  else {
     return {
       statusCode: 500,
       headers: {
         'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify({
-        error: error
-      })
+      body: JSON.stringify({error: "A valid URL was not returned"})
     }
   }
 }

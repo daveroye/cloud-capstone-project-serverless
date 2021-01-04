@@ -1,22 +1,18 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import { createLogger } from '../../utils/logger'
-import { getUserId } from '../utils'
-import { generateUploadUrl } from '../../businessLogic/auctions'
+import { generateAuctionItemUploadUrl } from '../../businessLogic/auctionItems'
 
-const logger = createLogger('generateUploadURL')
+const logger = createLogger('generateAuctionItemUploadURL')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  // get auction and item ID from path
   const auctionId = event.pathParameters.auctionId
-  logger.info('Upload URL for AuctionID: ', { auctionId: auctionId })
+  const itemId = event.pathParameters.itemId
+  logger.info('Add image to auction item: ', { auctionId: auctionId, itemId: itemId })
 
-  // get user ID from incoming request
-  const id = getUserId(event)
-  logger.info('User ID: ', { userId: id })
-
-  try {
-    const signedURL = await generateUploadUrl(id, auctionId)
-
+  const signedURL = await generateAuctionItemUploadUrl(auctionId, itemId)
+  if (signedURL) {
     return {
       statusCode: 200,
       headers: {
@@ -27,15 +23,13 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       })
     }
   }
-  catch (error) {
+  else {
     return {
       statusCode: 500,
       headers: {
         'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify({
-        error: error
-      })
+      body: JSON.stringify({error: "A valid URL was not returned"})
     }
   }
 }
