@@ -1,42 +1,44 @@
 import * as uuid from 'uuid'
-import { Auction, AuctionState } from '../models/Auction'
-import { AuctionAccess } from '../dataLayer/auctionAccess'
-import { CreateAuctionRequest } from '../requests/CreateAuctionRequest'
-import { UpdateAuctionRequest } from '../requests/UpdateAuctionRequest'
+import { AuctionItem } from '../models/AuctionItem'
+import { AuctionItemAccess } from '../dataLayer/auctionItemAccess'
+import { CreateAuctionItemRequest } from '../requests/CreateAuctionItemRequest'
+import { UpdateAuctionItemRequest } from '../requests/UpdateAuctionItemRequest'
 
-const auctionAccess = new AuctionAccess()
+const auctionAccess = new AuctionItemAccess()
 
-export async function getAuctions(userId: string): Promise<Auction[]> {
-    return auctionAccess.getAuctions(userId)
+export async function getAuctionItems(auctionId: string): Promise<AuctionItem[]> {
+    return auctionAccess.getAuctionItems(auctionId)
 }
 
-export async function createAuction(
-    newAuction: CreateAuctionRequest,
-    userId: string
-): Promise<Auction> {
+export async function createAuctionItem(
+    newAuction: CreateAuctionItemRequest,
+    auctionId: string,
+    itemUserId: string
+): Promise<AuctionItem> {
 
-    const auctionId = uuid.v4()
+    const itemId = uuid.v4()
 
-    return await auctionAccess.createAuction({
-        userId: userId,
+    return await auctionAccess.createAuctionItem({
         auctionId: auctionId,
+        itemId: itemId,
+        itemUserId: itemUserId,
         createdAt: new Date().toISOString(),
         name: newAuction.name,
-        auctionState: AuctionState.Created
+        forsale: false
     })
 }
 
-export async function udpateAuction(
-    updatedAuction: UpdateAuctionRequest,
-    userId: string,
-    auctionId: string): Promise<boolean>  {
-    return await auctionAccess.updateAuction(userId, auctionId, updatedAuction)
+export async function udpateAuctionItem(
+    updatedAuctionItem: UpdateAuctionItemRequest,
+    auctionId: string,
+    itemId: string): Promise<boolean>  {
+    return await auctionAccess.updateAuctionItem(auctionId, itemId, updatedAuctionItem)
 }
 
-export async function deleteAuction(userId: string, auctionId: string): Promise<boolean> {
-    return await auctionAccess.deleteAuction(userId, auctionId) as boolean
+export async function deleteAuctionItem(auctionId: string, itemId: string): Promise<boolean> {
+    return await auctionAccess.deleteAuctionItem(auctionId, itemId) as boolean
 }
 
-export async function generateUploadUrl(userId: string, auctionId: string): Promise<string> {
-    return await auctionAccess.generateUploadUrl(userId, auctionId)
+export async function generateAuctionItemUploadUrl(auctionId: string, itemId: string): Promise<string> {
+    return await auctionAccess.generateAuctionItemUploadUrl(auctionId, itemId)
 }

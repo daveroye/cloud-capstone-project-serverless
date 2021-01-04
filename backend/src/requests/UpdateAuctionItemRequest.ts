@@ -3,5 +3,5 @@
  */
 export interface UpdateAuctionItemRequest {
   name: string
-  bid: number
+  bidValue: number
 }
