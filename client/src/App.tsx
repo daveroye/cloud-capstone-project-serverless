@@ -4,6 +4,7 @@ import { Grid, Menu, Segment } from 'semantic-ui-react'
 
 import Auth from './auth/Auth'
 import { EditAuction } from './components/EditAuction'
+import { AddItemAuction } from './components/AddItemAuction'
 import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
 import { Auctions } from './components/Auctions'
@@ -101,6 +102,14 @@ export default class App extends Component<AppProps, AppState> {
           exact
           render={props => {
             return <EditAuction {...props} auth={this.props.auth} />
+          }}
+        />
+
+        <Route
+          path="/auctions/:auctionId/addItem/:auctionName"
+          exact
+          render={props => {
+            return <AddItemAuction {...props} auth={this.props.auth} />
           }}
         />
 

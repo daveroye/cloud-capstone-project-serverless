@@ -4,7 +4,6 @@ import update from 'immutability-helper'
 import * as React from 'react'
 import {
   Button,
-  Checkbox,
   Divider,
   Grid,
   Header,
@@ -43,6 +42,10 @@ export class Auctions extends React.PureComponent<AuctionsProps, AuctionsState> 
 
   onEditButtonClick = (auctionId: string) => {
     this.props.history.push(`/auctions/${auctionId}/edit`)
+  }
+
+  onAddItemButtonClick = (auctionId: string, auctionName: string) => {
+    this.props.history.push(`/auctions/${auctionId}/addItem/${auctionName}`)
   }
 
   onAuctionCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
@@ -142,8 +145,18 @@ export class Auctions extends React.PureComponent<AuctionsProps, AuctionsState> 
         {this.state.auctions.map((auction, pos) => {
           return (
             <Grid.Row key={auction.auctionId}>
-              <Grid.Column width={14} verticalAlign="middle">
+              <Grid.Column width={12} verticalAlign="middle">
                 {auction.name}
+              </Grid.Column>
+              <Grid.Column width={1} floated="right">
+              <Popup content="Add items to this auction" trigger={
+                <Button
+                  icon
+                  color="green"
+                  onClick={() => this.onAddItemButtonClick(auction.auctionId, auction.name)}
+                >
+                  <Icon name="pencil" />
+                </Button>}/>
               </Grid.Column>
               <Grid.Column width={1} floated="right">
               <Popup content="Add an image to this auction" trigger={
@@ -152,7 +165,7 @@ export class Auctions extends React.PureComponent<AuctionsProps, AuctionsState> 
                   color="blue"
                   onClick={() => this.onEditButtonClick(auction.auctionId)}
                 >
-                  <Icon name="pencil" />
+                  <Icon name="image" />
                 </Button>}/>
               </Grid.Column>
               <Grid.Column width={1} floated="right">
