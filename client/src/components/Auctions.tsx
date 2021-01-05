@@ -96,7 +96,7 @@ export class Auctions extends React.PureComponent<AuctionsProps, AuctionsState> 
 
   async componentDidMount() {
     try {
-      const auctions = await getAuctions(this.props.auth.getIdToken())
+      const auctions = await getAuctions(this.props.auth.getIdToken(), "ALL")
       this.setState({
         auctions,
         loadingAuctions: false

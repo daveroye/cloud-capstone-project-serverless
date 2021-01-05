@@ -8,6 +8,7 @@ import { EditAuctionItem } from './components/AddImageAuctionItem'
 import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
 import { Auctions } from './components/Auctions'
+import { OpenAuctions } from './components/OpenAuctions'
 
 export interface AppProps {}
 
@@ -60,7 +61,9 @@ export default class App extends Component<AppProps, AppState> {
         <Menu.Item name="home">
           <Link to="/">My Auctions</Link>
         </Menu.Item>
-
+        <Menu.Item name="open_auctions">
+          <Link to="/openAuctions">Open Auctions</Link>
+        </Menu.Item>
         <Menu.Menu position="right">{this.logInLogOutButton()}</Menu.Menu>
       </Menu>
     )
@@ -94,6 +97,14 @@ export default class App extends Component<AppProps, AppState> {
           exact
           render={props => {
             return <Auctions {...props} auth={this.props.auth} />
+          }}
+        />
+
+        <Route
+          path="/openAuctions"
+          exact
+          render={props => {
+            return <OpenAuctions {...props} auth={this.props.auth} />
           }}
         />
 

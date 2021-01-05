@@ -5,10 +5,13 @@ import { CreateAuctionRequest } from '../types/CreateAuctionRequest';
 import Axios from 'axios'
 import { UpdateAuctionRequest } from '../types/UpdateAuctionRequest';
 
-export async function getAuctions(idToken: string): Promise<Auction[]> {
+export async function getAuctions(
+  idToken: string,
+  auctionType: string
+  ): Promise<Auction[]> {
   console.log('Fetching auctions')
 
-  const response = await Axios.get(`${apiEndpoint}/auctions`, {
+  const response = await Axios.get(`${apiEndpoint}/auctions?auctionType=${auctionType}`, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
