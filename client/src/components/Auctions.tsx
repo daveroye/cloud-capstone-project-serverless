@@ -1,4 +1,3 @@
-import dateFormat from 'dateformat'
 import { History } from 'history'
 import update from 'immutability-helper'
 import * as React from 'react'
@@ -16,7 +15,7 @@ import {
 
 import { createAuction, deleteAuction, getAuctions, patchAuction } from '../api/auctions-api'
 import Auth from '../auth/Auth'
-import { Auction } from '../types/Auction'
+import { Auction, AuctionState } from '../types/Auction'
 
 interface AuctionsProps {
   auth: Auth
@@ -44,7 +43,29 @@ export class Auctions extends React.PureComponent<AuctionsProps, AuctionsState> 
     this.props.history.push(`/auctions/${auctionId}/edit`)
   }
 
-  onAddItemButtonClick = (auctionId: string, auctionName: string) => {
+  onAddItemButtonClick = async (
+    pos: number,
+    auctionId: string,
+    auctionName: string,
+    auctionState: AuctionState) => {
+    if (auctionState == AuctionState.Created) {
+      try {
+        await patchAuction(
+          this.props.auth.getIdToken(),
+          auctionId,
+          {
+            name: auctionName,
+            auctionState: AuctionState.OpenForItems
+          })
+        this.setState({
+          auctions: update(this.state.auctions, {
+            [pos]: { auctionState: { $set: AuctionState.OpenForItems } }
+          })
+        })
+      } catch {
+        alert('Auction update failed')
+      }
+    }
     this.props.history.push(`/auctions/${auctionId}/addItem/${auctionName}`)
   }
 
@@ -153,7 +174,11 @@ export class Auctions extends React.PureComponent<AuctionsProps, AuctionsState> 
                 <Button
                   icon
                   color="green"
-                  onClick={() => this.onAddItemButtonClick(auction.auctionId, auction.name)}
+                  onClick={() => this.onAddItemButtonClick(
+                    pos, 
+                    auction.auctionId, 
+                    auction.name, 
+                    auction.auctionState)}
                 >
                   <Icon name="pencil" />
                 </Button>}/>

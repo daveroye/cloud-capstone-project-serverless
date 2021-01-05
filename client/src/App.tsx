@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import { Link, Route, Router, Switch } from 'react-router-dom'
 import { Grid, Menu, Segment } from 'semantic-ui-react'
-
 import Auth from './auth/Auth'
 import { EditAuction } from './components/EditAuction'
 import { AddItemAuction } from './components/AddItemAuction'
+import { EditAuctionItem } from './components/AddImageAuctionItem'
 import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
 import { Auctions } from './components/Auctions'
@@ -58,7 +58,7 @@ export default class App extends Component<AppProps, AppState> {
     return (
       <Menu>
         <Menu.Item name="home">
-          <Link to="/">Home</Link>
+          <Link to="/">My Auctions</Link>
         </Menu.Item>
 
         <Menu.Menu position="right">{this.logInLogOutButton()}</Menu.Menu>
@@ -110,6 +110,14 @@ export default class App extends Component<AppProps, AppState> {
           exact
           render={props => {
             return <AddItemAuction {...props} auth={this.props.auth} />
+          }}
+        />
+
+        <Route
+          path="/auctions/:auctionId/:itemId/edit"
+          exact
+          render={props => {
+            return <EditAuctionItem {...props} auth={this.props.auth} />
           }}
         />
 
