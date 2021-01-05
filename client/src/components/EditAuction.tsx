@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Form, Button } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
+import { History } from 'history'
 import { getUploadUrl, uploadFile } from '../api/auctions-api'
 
 enum UploadState {
@@ -15,6 +16,7 @@ interface EditAuctionProps {
       auctionId: string
     }
   }
+  history: History
   auth: Auth
 }
 
@@ -61,6 +63,7 @@ export class EditAuction extends React.PureComponent<
       alert('Could not upload a file: ' + e.message)
     } finally {
       this.setUploadState(UploadState.NoUpload)
+      this.props.history.goBack()
     }
   }
 
