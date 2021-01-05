@@ -9,6 +9,7 @@ import {
   Icon,
   Input,
   Image,
+  Label,
   Loader,
   Popup
 } from 'semantic-ui-react'
@@ -147,7 +148,25 @@ export class Auctions extends React.PureComponent<AuctionsProps, AuctionsState> 
     if (this.state.loadingAuctions) {
       return this.renderLoading()
     }
-    return this.renderAuctionsList()
+    if (this.state.auctions.length > 0) {
+      return this.renderAuctionsList()
+    } else {
+      return (
+        <Grid padded>
+          <Grid.Row centered>
+            <Grid.Column width={2}>
+            </Grid.Column>
+            <Grid.Column width={8}>
+              <Label
+                color='orange'
+                size='big'
+                content='You Have Not Yet Created Any Auctions'
+              />
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
+      )
+    }
   }
 
   renderLoading() {

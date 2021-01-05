@@ -9,7 +9,8 @@ import {
   Input,
   Image,
   Loader,
-  Popup
+  Popup,
+  Label
 } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
 import { getAuctionItems, createAuctionItem, deleteAuctionItem } from '../api/auctions-api'
@@ -129,7 +130,25 @@ export class AddItemAuction extends React.PureComponent<
     if (this.state.loadingAuctionItems) {
       return this.renderLoading()
     }
-    return this.renderAuctionItemsList()
+    if (this.state.auctionItems.length > 0) {
+      return this.renderAuctionItemsList()
+    } else {
+      return (
+        <Grid padded>
+          <Grid.Row centered>
+            <Grid.Column width={2}>
+            </Grid.Column>
+            <Grid.Column width={8}>
+              <Label
+                color='orange'
+                size='big'
+                content='No Auction Items yet for this auction'
+              />
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
+      )
+    }
   }
 
   renderLoading() {
