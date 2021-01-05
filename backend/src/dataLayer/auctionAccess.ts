@@ -1,6 +1,6 @@
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { createLogger } from '../utils/logger'
-import { Auction } from '../models/Auction'
+import { Auction, AuctionState } from '../models/Auction'
 import { getItems, createItem, updateItem, deleteItem, storeUploadUrl, getUploadUrl } from './accessUtils'
 import { UpdateAuctionRequest } from '../requests/UpdateAuctionRequest'
 
@@ -10,20 +10,35 @@ export class AuctionAccess {
 
     constructor(
         private readonly auctionTable = process.env.AUCTIONS_TABLE,
-        private readonly indexName = process.env.INDEX_NAME) {
+        private readonly indexName = process.env.AUCTION_INDEX_NAME,
+        private readonly gsIndexName = process.env.AUCTION_GSI_NAME) {
     }
 
-    async getAuctions(userId: string): Promise<Auction[]> {
-        logger.info('Getting all auction items')
+    async getAuctions(userId: string, auctionType: string): Promise<Auction[]> {
+        logger.info('Getting all auction items for type', { auctionType: auctionType })
 
+        let queryParams: DocumentClient.QueryInput = null
         // define query paramaters to be used to get all auction items including a key for pagination
-        const queryParams: DocumentClient.QueryInput = {
-            TableName: this.auctionTable,
-            IndexName: this.indexName,
-            KeyConditionExpression: 'userId = :userId',
-            ExpressionAttributeValues: { ':userId': userId }
+        if (auctionType == "ALL") {
+            queryParams = {
+                TableName: this.auctionTable,
+                IndexName: this.indexName,
+                KeyConditionExpression: 'userId = :userId',
+                ExpressionAttributeValues: { ':userId': userId }
+            }
+        } else if (auctionType == "OPEN") {
+            queryParams = {
+                TableName: this.auctionTable,
+                IndexName: this.gsIndexName,
+                KeyConditionExpression: 'auctionState = :state',
+                ExpressionAttributeValues: { ':state': AuctionState.OpenForItems }
+            }
         }
-        return await getItems(queryParams) as Auction[]
+        if (queryParams) {
+            return await getItems(queryParams) as Auction[]
+        } else {
+            return null
+        }
     }
 
     async createAuction(auction: Auction): Promise<Auction> {

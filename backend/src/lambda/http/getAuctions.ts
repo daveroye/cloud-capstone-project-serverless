@@ -9,11 +9,12 @@ const logger = createLogger('getAuctions')
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
   // get user ID from incoming request
-  const userId = getUserId(event)
-  logger.info('User ID: ', { userId: userId })
+  const userId: string = getUserId(event)
+  const auctionType: string = event.queryStringParameters.auctionType
+  logger.info('Auction get options ', { userId: userId, auctionType: auctionType })
 
   // fetch list of user's auctions
-  const auctions = await getAuctions(userId)
+  const auctions = await getAuctions(userId, auctionType)
 
   if (!auctions) {
     return {

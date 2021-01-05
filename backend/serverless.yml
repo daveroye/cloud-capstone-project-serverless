@@ -23,6 +23,7 @@ provider:
   environment:
     AUCTIONS_TABLE: MySilentAuction-Table-v4-${self:provider.stage}
     AUCTION_INDEX_NAME: MySilentAuction-Index-v4-${self:provider.stage}
+    AUCTION_GSI_NAME: MySilentAuction-GSI-v4-${self:provider.stage}
     AUCTION_ITEMS_TABLE: MySilentAuctionItems-Table-v1-${self:provider.stage}
     IMAGES_S3_BUCKET: serverless-mysilentauction-images-droye6245-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
@@ -298,6 +299,13 @@ resources:
                 KeyType: HASH
               - AttributeName: auctionState
                 KeyType: RANGE
+            Projection:
+              ProjectionType: ALL # What attributes will be copied to an index
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.AUCTION_GSI_NAME}
+            KeySchema:
+              - AttributeName: auctionState
+                KeyType: HASH
             Projection:
               ProjectionType: ALL # What attributes will be copied to an index
 

@@ -6,8 +6,8 @@ import { UpdateAuctionRequest } from '../requests/UpdateAuctionRequest'
 
 const auctionAccess = new AuctionAccess()
 
-export async function getAuctions(userId: string): Promise<Auction[]> {
-    return auctionAccess.getAuctions(userId)
+export async function getAuctions(userId: string, auctionType: string): Promise<Auction[]> {
+    return auctionAccess.getAuctions(userId, auctionType)
 }
 
 export async function createAuction(
