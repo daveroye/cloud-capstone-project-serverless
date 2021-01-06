@@ -82,11 +82,11 @@ export class OpenAuctions extends React.PureComponent<OpenAuctionsProps, OpenAuc
           if (auction.auctionState == AuctionState.OpenForItems) {
             return (
               <Grid.Row key={auction.auctionId}>
-                <Grid.Column width={12} verticalAlign="middle">
+                <Grid.Column width={15} verticalAlign="middle">
                   {auction.name}
                 </Grid.Column>
                 <Grid.Column width={1} floated="right">
-                  <Popup content="Add items to this auction" trigger={
+                  <Popup content="Add or update your items for this auction" trigger={
                     <Button
                       icon
                       color="green"

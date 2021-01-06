@@ -1,8 +1,10 @@
 import * as React from 'react'
 import { History } from 'history'
+import update from 'immutability-helper'
 import {
   Button,
   Divider,
+  Form,
   Grid,
   Header,
   Icon,
@@ -10,10 +12,12 @@ import {
   Image,
   Loader,
   Popup,
-  Label
+  Label,
+  TextArea,
+  Segment
 } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
-import { getAuctionItems, createAuctionItem, deleteAuctionItem } from '../api/auctions-api'
+import { getAuctionItems, createAuctionItem, deleteAuctionItem, patchAuctionItem } from '../api/auctions-api'
 import { AuctionItem } from '../types/AuctionItem'
 
 interface AddItemAuctionProps {
@@ -30,39 +34,102 @@ interface AddItemAuctionProps {
 interface AddItemAuctionState {
   auctionItems: AuctionItem[]
   newAuctionItemName: string
+  newDescription: string
+  newBid: number
   loadingAuctionItems: boolean
+  descriptionChanged: boolean
+  bidChanged: boolean
 }
 
 export class AddItemAuction extends React.PureComponent<
   AddItemAuctionProps,
   AddItemAuctionState
-> {
+  > {
   state: AddItemAuctionState = {
     auctionItems: [],
     newAuctionItemName: '',
-    loadingAuctionItems: true
+    newBid: 0,
+    newDescription: '',
+    loadingAuctionItems: true,
+    descriptionChanged: false,
+    bidChanged: false
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newAuctionItemName: event.target.value })
   }
 
+  handleDescriptionChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
+    this.setState({ newDescription: event.currentTarget.value, descriptionChanged: true })
+  }
+
+  handleBidChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ newBid: event.target.valueAsNumber, bidChanged: true })
+  }
+
   onEditButtonClick = (itemId: string) => {
     this.props.history.push(`/auctions/${this.props.match.params.auctionId}/${itemId}/edit`)
   }
 
-  onAuctionItemCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+  onAuctionItemCreate = async () => {
     try {
       const newAuctionItem = await createAuctionItem(
-        this.props.auth.getIdToken(), 
-        this.props.match.params.auctionId, 
-        { name: this.state.newAuctionItemName })
+        this.props.auth.getIdToken(),
+        this.props.match.params.auctionId,
+        { itemName: this.state.newAuctionItemName })
       this.setState({
         auctionItems: [...this.state.auctionItems, newAuctionItem],
         newAuctionItemName: ''
       })
     } catch {
       alert('Auction item creation failed')
+    }
+  }
+
+  onDescriptionChange = async (itemId: string, pos: number) => {
+    if (this.state.descriptionChanged) {
+      try {
+        await patchAuctionItem(
+          this.props.auth.getIdToken(),
+          this.props.match.params.auctionId,
+          itemId,
+          {
+            description: this.state.newDescription
+          })
+        this.setState({
+          descriptionChanged: false,
+          auctionItems: update(this.state.auctionItems, {
+            [pos]: { description: { $set: this.state.newDescription } }
+          }),
+          newDescription: ''
+        })
+
+      } catch {
+        alert('Auction item description update failed')
+      }
+    }
+  }
+
+  onBidChange = async (itemId: string, pos: number) => {
+    if (this.state.bidChanged) {
+      try {
+        await patchAuctionItem(
+          this.props.auth.getIdToken(),
+          this.props.match.params.auctionId,
+          itemId,
+          {
+            bidValue: this.state.newBid
+          })
+        this.setState({
+          bidChanged: false,
+          auctionItems: update(this.state.auctionItems, {
+            [pos]: { bidValue: { $set: this.state.newBid } }
+          })
+        })
+
+      } catch {
+        alert('Auction item bid update failed')
+      }
     }
   }
 
@@ -111,7 +178,7 @@ export class AddItemAuction extends React.PureComponent<
               labelPosition: 'left',
               icon: 'add',
               content: 'New auction item',
-              onClick: this.onAuctionItemCreate
+              onClick: () => this.onAuctionItemCreate()
             }}
             fluid
             actionPosition="left"
@@ -163,36 +230,68 @@ export class AddItemAuction extends React.PureComponent<
 
   renderAuctionItemsList() {
     return (
-      <Grid padded>
+      <Grid columns={5}>
         {this.state.auctionItems.map((auctionItem, pos) => {
           return (
             <Grid.Row key={auctionItem.itemId}>
-              <Grid.Column width={14} verticalAlign="middle">
-                {auctionItem.name}
+              <Grid.Column verticalAlign="top" textAlign='left'>
+                {auctionItem.itemName}
+              </Grid.Column>
+              <Grid.Column verticalAlign="middle">
+                {auctionItem.attachmentUrl && (
+                  <Image src={auctionItem.attachmentUrl} size="small" />
+                )}
+              </Grid.Column>
+              <Grid.Column width={6} verticalAlign="top">
+                <Form onSubmit={() => this.onDescriptionChange(auctionItem.itemId, pos)}>
+                  <Label>
+                    Description:
+                     <TextArea
+                      type='text'
+                      defaultValue={auctionItem.description}
+                      placeholder="Almost new, barely used..."
+                      onChange={(e) => this.handleDescriptionChange(e)}
+                    />
+                    <Label color='blue'>
+                      <Input type="submit" value="Submit Changes" />
+                    </Label>
+                  </Label>
+                </Form>
+              </Grid.Column>
+              <Grid.Column width={1} verticalAlign="middle">
+                <Form onSubmit={() => this.onBidChange(auctionItem.itemId, pos)}>
+                  <Label>
+                    Bid $:
+                     <Input
+                      type='number'
+                      defaultValue={auctionItem.bidValue}
+                      placeholder="10"
+                      onChange={(e) => this.handleBidChange(e)}
+                    />
+                    <Label color='green'>
+                      <Input type="submit" value="Change Bid" />
+                    </Label>
+                  </Label>
+                </Form>
               </Grid.Column>
               <Grid.Column width={1} floated="right">
-              <Popup content="Add an image to this auction item" trigger={
-                <Button
-                  icon
-                  color="blue"
-                  onClick={() => this.onEditButtonClick(auctionItem.itemId)}
-                >
-                  <Icon name="image" />
-                </Button>}/>
+                  <Popup content="Add an image to this auction item" trigger={
+                    <Button
+                      icon
+                      color="blue"
+                      onClick={() => this.onEditButtonClick(auctionItem.itemId)}
+                    >
+                      <Icon name="image" />
+                    </Button>} />
+                  <Popup content="Delete auction item" trigger={
+                    <Button
+                      icon
+                      color="red"
+                      onClick={() => this.onAuctionItemDelete(auctionItem.itemId)}
+                    >
+                      <Icon name="delete" />
+                    </Button>} />
               </Grid.Column>
-              <Grid.Column width={1} floated="right">
-                <Popup content="Delete auction item" trigger={
-                <Button
-                  icon
-                  color="red"
-                  onClick={() => this.onAuctionItemDelete(auctionItem.itemId)}
-                >
-                  <Icon name="delete" />
-                </Button>}/>
-              </Grid.Column>
-              {auctionItem.attachmentUrl && (
-                <Image src={auctionItem.attachmentUrl} size="small" wrapped />
-              )}
               <Grid.Column width={16}>
                 <Divider />
               </Grid.Column>

@@ -2,8 +2,10 @@ import { apiEndpoint } from '../config'
 import { Auction } from '../types/Auction';
 import { AuctionItem } from '../types/AuctionItem';
 import { CreateAuctionRequest } from '../types/CreateAuctionRequest';
+import { CreateAuctionItemRequest } from '../types/CreateAuctionItemRequest';
 import Axios from 'axios'
 import { UpdateAuctionRequest } from '../types/UpdateAuctionRequest';
+import { UpdateAuctionItemRequest } from '../types/UpdateAuctionItemRequest';
 
 export async function getAuctions(
   idToken: string,
@@ -53,9 +55,9 @@ export async function createAuction(
 export async function createAuctionItem(
   idToken: string,
   auctionId: string,
-  newAuction: CreateAuctionRequest
+  newAuctionItem: CreateAuctionItemRequest
 ): Promise<AuctionItem> {
-  const response = await Axios.post(`${apiEndpoint}/auctions/${auctionId}`,  JSON.stringify(newAuction), {
+  const response = await Axios.post(`${apiEndpoint}/auctions/${auctionId}`,  JSON.stringify(newAuctionItem), {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
@@ -70,6 +72,20 @@ export async function patchAuction(
   updatedAuction: UpdateAuctionRequest
 ): Promise<void> {
   await Axios.patch(`${apiEndpoint}/auctions/${auctionId}`, JSON.stringify(updatedAuction), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    }
+  })
+}
+
+export async function patchAuctionItem(
+  idToken: string,
+  auctionId: string,
+  itemId: string,
+  updatedAuctionItem: UpdateAuctionItemRequest
+): Promise<void> {
+  await Axios.patch(`${apiEndpoint}/auctions/${auctionId}/${itemId}`, JSON.stringify(updatedAuctionItem), {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
