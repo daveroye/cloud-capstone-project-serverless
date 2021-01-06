@@ -1,14 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "create-auction",
+  "title": "create-auction-item",
   "type": "object",
   "properties": {
-    "name": {
+    "itemName": {
       "$ref": "#/definitions/non-empty-string"
     }
   },
   "required": [
-    "name"
+    "itemName"
   ],
   "additionalProperties": false,
   "definitions": {
