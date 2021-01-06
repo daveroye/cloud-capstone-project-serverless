@@ -3,7 +3,7 @@ export interface AuctionItem {
   itemId: string
   itemUserId: string
   createdAt: string
-  name: string
+  itemName: string
   forsale: boolean
   bidValue?: number
   bidUserId?: string

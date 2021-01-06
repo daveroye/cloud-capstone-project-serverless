@@ -31,18 +31,38 @@ export class AuctionItemAccess {
         return (await createItem(putParams)) ? auctionItem : null
     }
 
-    async updateAuctionItem(auctionId: string, itemId: string, updatedAuctionItem: UpdateAuctionItemRequest): Promise<boolean> {
-        const updateParams: DocumentClient.UpdateItemInput = {
-            TableName: this.auctionItemTable,
-            Key: { "auctionId": auctionId, "itemId": itemId },
-            ExpressionAttributeNames: { "#n": "name" },
-            UpdateExpression: "set #n=:n, bid=:b",
-            ExpressionAttributeValues: {
-                ':n': updatedAuctionItem.name,
-                ':b': updatedAuctionItem.bid
+    async updateAuctionItem(
+        auctionId: string,
+        itemId: string,
+        userId: string,
+        updatedAuctionItem: UpdateAuctionItemRequest
+    ): Promise<boolean> {
+        let updateParams: DocumentClient.UpdateItemInput
+        if (updatedAuctionItem.description) {
+            updateParams = {
+                TableName: this.auctionItemTable,
+                Key: { "auctionId": auctionId, "itemId": itemId },
+                UpdateExpression: "set description=:d",
+                ExpressionAttributeValues: {
+                    ':d': updatedAuctionItem.description
+                }
+            }
+        } else if (updatedAuctionItem.bidValue) {
+            updateParams = {
+                TableName: this.auctionItemTable,
+                Key: { "auctionId": auctionId, "itemId": itemId },
+                UpdateExpression: "set bidValue=:b, bidUserId=:bu",
+                ExpressionAttributeValues: {
+                    ':b': updatedAuctionItem.bidValue,
+                    ':bu': userId
+                }
             }
         }
-        return await updateItem(updateParams)
+        if (updatedAuctionItem) {
+            return await updateItem(updateParams)
+        } else {
+            return false
+        }
     }
 
     async deleteAuctionItem(auctionId: string, itemId: string): Promise<boolean> {

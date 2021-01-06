@@ -23,7 +23,7 @@ export async function createAuctionItem(
         itemId: itemId,
         itemUserId: itemUserId,
         createdAt: new Date().toISOString(),
-        name: newAuction.name,
+        itemName: newAuction.itemName,
         forsale: false
     })
 }
@@ -31,8 +31,14 @@ export async function createAuctionItem(
 export async function udpateAuctionItem(
     updatedAuctionItem: UpdateAuctionItemRequest,
     auctionId: string,
-    itemId: string): Promise<boolean>  {
-    return await auctionAccess.updateAuctionItem(auctionId, itemId, updatedAuctionItem)
+    itemId: string,
+    userId: string
+    ): Promise<boolean>  {
+    return await auctionAccess.updateAuctionItem(
+        auctionId, 
+        itemId, 
+        userId,
+        updatedAuctionItem)
 }
 
 export async function deleteAuctionItem(auctionId: string, itemId: string): Promise<boolean> {
