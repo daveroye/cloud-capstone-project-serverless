@@ -8,27 +8,27 @@ This application will allow creating/removing/updating/fetching silent auction e
 
 # Silent Auction event items
 
-The application should store TODO items, and each TODO item contains the following fields:
+The application should store auction items, and each auction item contains the following fields:
 
 * `userId` (string) - id of the user logged in and creating the silent auction event
-* `auctionId` (string) - a unique id for an item
-* `createdAt` (string) - date and time when an item was created
-* `name` (string) - name of a silent auction event item (e.g. "Elm High School Band Fundraiser")
-* `attachmentUrl` (string) (optional) - a URL pointing to an image attached to a TODO item
-* `auctionState` (AuctionEvent enum) - state of the silent auction event item 
+* `auctionId` (string) - a unique id for an auction
+* `createdAt` (string) - date and time when an auction was created
+* `name` (string) - name of a silent auction event (e.g. "Elm High School Band Fundraiser")
+* `attachmentUrl` (string) (optional) - a URL pointing to an image attached to an auction
+* `auctionState` (AuctionEvent enum) - state of the silent auction event
 ``` AuctionEvent enum
   [
-    "CREATED",          // For a newly created item that is ready to use
+    "CREATED",          // For a newly created aucttion that is ready to use
     "OPEN_FOR_ITEMS",   // Start collecting items for use in the silent auction
     "STARTED",          // Start the silent auction and start taking bids on items
-    "ENDED",            // End the auction and stop taking bids and the item's winning bid
+    "ENDED",            // End the auction and stop taking bids and determine the item's winning bid
     "CLOSED"            // All items claimed and auction is finished
   ]
 ```
 * `startedAt` (string) (optional until auction started) - date and time when auction was started
 * `endedAt` (string) (optional until auction ended) - date and time when auction was ended
 
-# Functions implemented
+# Auction Event Functions implemented
 
 The following functions are implemented and configured in the `serverless.yml` file:
 
@@ -76,7 +76,7 @@ It should return a new Auction item that looks like this:
 ```json
 {
   "item": {
-    "todoId": "123",
+    "auctionId": "123",
     "createdAt": "2019-07-27T20:01:45.424Z",
     "name": "Fundraiser",
     "auctionState": "CREATED",
@@ -119,6 +119,117 @@ All functions are connected to appropriate events from API Gateway.
 An id of a user is extracted from a JWT token passed by a client.
 
 Necessary resources have been added to the `resources` section of the `serverless.yml` file such as DynamoDB table and S3 bucket.
+
+
+# Auction item objects
+
+The application should store item for each auction, and each auction item contains the following fields:
+
+* `auctionId` (string) - id of the auction that this item belongs to
+* `itemId` (string) - a unique id for an item
+* `itemUserId` (string) - id of the user that created this auction item
+* `createdAt` (string) - date and time when an item was created
+* `itemName` (string) - name of a silent auction item (e.g. "Opera tickets")
+* `forSale` (boolean) - indicates the item has a starting bid and can be including in the auction for sale
+* `bidValue` (number) - amount in dollars that is bid for the item
+* `bidUserId` (string) - the user ID of the bidder
+* `description` (sting) - a description of the auction item
+* `attachmentUrl` (string) (optional) - a URL pointing to an image attached to an auction item
+
+
+# Auction Item Functions implemented
+
+The following functions are implemented and configured in the `serverless.yml` file:
+
+* `GetAuctionItems` - returns all Auction items for the current user or all items depending on the filter set.
+
+It should return data that looks like this:
+
+```json
+{
+  "items": [
+    {
+      "auctionId": "123",
+      "itemId": "5465",
+      "itemUserId": "Doodle-13423",
+      "createdAt": "2021-07-27T20:01:45.424Z",
+      "itemName": "Tennis Racket",
+      "forSale": "true",
+      "attachmentUrl": "http://example.com/image.png"
+    },
+    {
+      "auctionId": "456",
+      "itemId": "67856",
+      "itemUserId": "Poodle-56756",
+      "createdAt": "2020-07-27T20:01:45.424Z",
+      "itemName": "Painting of Frog",
+      "forSale": "false",
+      "attachmentUrl": "http://example.com/image.png"
+    },
+  ]
+}
+```
+
+* `CreateAuctionItem` - creates a new Auction item for the current user. The shape of the data to be sent by a client application to this function can be found in the `CreateAuctionItemRequest.ts` file
+
+It receives a new Auction item to be created in JSON format that looks like this:
+
+```json
+{
+  "createdAt": "2019-07-27T20:01:45.424Z",
+  "itemName": "Pencil",
+  "attachmentUrl": "http://example.com/image.png"
+}
+```
+
+It should return a new Auction item that looks like this:
+
+```json
+{
+  "item": {
+    "auctionId": "123",
+    "itemId": "456",
+    "itemUserId": "Fred-345345",
+    "createdAt": "2019-07-27T20:01:45.424Z",
+    "itemName": "Pencil",
+    "forSale": "false",
+    "attachmentUrl": "http://example.com/image.png"
+  }
+}
+```
+
+* `UpdateAuctionItem` - should update an Auction item. The shape of the data to be sent by a client application to this function can be found in the `UpdateAuctionItemRequest.ts` file
+
+It receives an object that contains four fields that can be updated in a Auction item:
+
+```json
+{
+  "itemName": "Dress Pants",
+  "bidValue": 45,
+  "bidUserId": "donna-353454",
+  "description": "long inseam and slim waisted"
+}
+```
+
+The id of the auction and an item that should be updated is passed as a URL parameter.
+
+It should return an empty body.
+
+* `DeleteAuction` - deletes an Auction item created by the current user. Expects an id of an Auction item to remove.
+
+It should return an empty body.
+
+* `GenerateUploadUrl` - returns a pre-signed URL that can be used to upload an attachment file for an Auction item.
+
+It should return a JSON object that looks like this:
+
+```json
+{
+  "uploadUrl": "https://s3-bucket-name.s3.eu-west-2.amazonaws.com/image.png"
+}
+```
+
+All functions are connected to appropriate events from API Gateway.
 
 
 # Frontend
