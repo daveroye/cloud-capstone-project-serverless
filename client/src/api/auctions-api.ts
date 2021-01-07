@@ -25,11 +25,12 @@ export async function getAuctions(
 
 export async function getAuctionItems(
   idToken: string,
-  auctionId: string
+  auctionId: string,
+  filterType: string
   ): Promise<AuctionItem[]> {
   console.log('Fetching auction items')
 
-  const response = await Axios.get(`${apiEndpoint}/auctions/${auctionId}`, {
+  const response = await Axios.get(`${apiEndpoint}/auctions/${auctionId}?filterType=${filterType}`, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`

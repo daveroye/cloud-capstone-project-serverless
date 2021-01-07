@@ -77,13 +77,18 @@ export class OpenAuctions extends React.PureComponent<OpenAuctionsProps, OpenAuc
 
   renderAuctionsList() {
     return (
-      <Grid padded>
+      <Grid columns={3}>
         {this.state.auctions.map((auction, pos) => {
           if (auction.auctionState == AuctionState.OpenForItems) {
             return (
               <Grid.Row key={auction.auctionId}>
-                <Grid.Column width={15} verticalAlign="middle">
+                <Grid.Column width={15} verticalAlign="top">
                   {auction.name}
+                </Grid.Column>
+                <Grid.Column verticalAlign="middle">
+                {auction.attachmentUrl && (
+                  <Image src={auction.attachmentUrl} size="small" wrapped />
+                )}
                 </Grid.Column>
                 <Grid.Column width={1} floated="right">
                   <Popup content="Add or update your items for this auction" trigger={
@@ -97,9 +102,6 @@ export class OpenAuctions extends React.PureComponent<OpenAuctionsProps, OpenAuc
                       <Icon name="pencil" />
                     </Button>} />
                 </Grid.Column>
-                {auction.attachmentUrl && (
-                  <Image src={auction.attachmentUrl} size="small" wrapped />
-                )}
                 <Grid.Column width={16}>
                   <Divider />
                 </Grid.Column>

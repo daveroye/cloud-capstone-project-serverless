@@ -13,8 +13,7 @@ import {
   Loader,
   Popup,
   Label,
-  TextArea,
-  Segment
+  TextArea
 } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
 import { getAuctionItems, createAuctionItem, deleteAuctionItem, patchAuctionItem } from '../api/auctions-api'
@@ -124,7 +123,8 @@ export class AddItemAuction extends React.PureComponent<
           bidChanged: false,
           auctionItems: update(this.state.auctionItems, {
             [pos]: { bidValue: { $set: this.state.newBid } }
-          })
+          }),
+          newBid: 0
         })
 
       } catch {
@@ -146,7 +146,10 @@ export class AddItemAuction extends React.PureComponent<
 
   async componentDidMount() {
     try {
-      const auctionItems = await getAuctionItems(this.props.auth.getIdToken(), this.props.match.params.auctionId)
+      const auctionItems = await getAuctionItems(
+        this.props.auth.getIdToken(), 
+        this.props.match.params.auctionId,
+        "FOR_USER")
       this.setState({
         auctionItems,
         loadingAuctionItems: false
@@ -159,7 +162,7 @@ export class AddItemAuction extends React.PureComponent<
   render() {
     return (
       <div>
-        <Header as="h1">{this.props.match.params.auctionName} Auction Items</Header>
+        <Header color='olive' as="h1">My Items For: <i>{this.props.match.params.auctionName}</i></Header>
 
         {this.renderCreateAuctionInput()}
 
@@ -261,7 +264,7 @@ export class AddItemAuction extends React.PureComponent<
               <Grid.Column width={1} verticalAlign="middle">
                 <Form onSubmit={() => this.onBidChange(auctionItem.itemId, pos)}>
                   <Label>
-                    Bid $:
+                    Set Starting Bid $:
                      <Input
                       type='number'
                       defaultValue={auctionItem.bidValue}
