@@ -70,6 +70,82 @@ export class Auctions extends React.PureComponent<AuctionsProps, AuctionsState> 
     this.props.history.push(`/auctions/${auctionId}/addItem/${auctionName}`)
   }
 
+  onResultsButtonClick = async (
+    pos: number,
+    auctionId: string,
+    auctionName: string,
+    auctionState: AuctionState) => {
+    if (auctionState == AuctionState.Ended) {
+      try {
+        await patchAuction(
+          this.props.auth.getIdToken(),
+          auctionId,
+          {
+            name: auctionName,
+            auctionState: AuctionState.Closed
+          })
+        this.setState({
+          auctions: update(this.state.auctions, {
+            [pos]: { auctionState: { $set: AuctionState.Closed } }
+          })
+        })
+      } catch {
+        alert('Auction update failed')
+      }
+    }
+    this.props.history.push(`/auctions/${auctionId}/auctionResults/${auctionName}`)
+  }
+
+  onStartButtonClick = async (
+    pos: number,
+    auctionId: string,
+    auctionName: string,
+    auctionState: AuctionState) => {
+    if (auctionState == AuctionState.OpenForItems) {
+      try {
+        await patchAuction(
+          this.props.auth.getIdToken(),
+          auctionId,
+          {
+            name: auctionName,
+            auctionState: AuctionState.Started
+          })
+        this.setState({
+          auctions: update(this.state.auctions, {
+            [pos]: { auctionState: { $set: AuctionState.Started } }
+          })
+        })
+      } catch {
+        alert('Auction update failed')
+      }
+    }
+  }
+
+  onStopButtonClick = async (
+    pos: number,
+    auctionId: string,
+    auctionName: string,
+    auctionState: AuctionState) => {
+    if (auctionState == AuctionState.Started) {
+      try {
+        await patchAuction(
+          this.props.auth.getIdToken(),
+          auctionId,
+          {
+            name: auctionName,
+            auctionState: AuctionState.Ended
+          })
+        this.setState({
+          auctions: update(this.state.auctions, {
+            [pos]: { auctionState: { $set: AuctionState.Ended } }
+          })
+        })
+      } catch {
+        alert('Auction update failed')
+      }
+    }
+  }
+
   onAuctionCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
     try {
       const newAuction = await createAuction(this.props.auth.getIdToken(), {
@@ -181,50 +257,97 @@ export class Auctions extends React.PureComponent<AuctionsProps, AuctionsState> 
 
   renderAuctionsList() {
     return (
-      <Grid padded>
+      <Grid columns={4}>
         {this.state.auctions.map((auction, pos) => {
           return (
             <Grid.Row key={auction.auctionId}>
-              <Grid.Column width={12} verticalAlign="middle">
+              <Grid.Column verticalAlign="top">
                 {auction.name}
               </Grid.Column>
-              <Grid.Column width={1} floated="right">
-              <Popup content="Add items to this auction" trigger={
-                <Button
-                  icon
-                  color="green"
-                  onClick={() => this.onAddItemButtonClick(
-                    pos, 
-                    auction.auctionId, 
-                    auction.name, 
-                    auction.auctionState)}
-                >
-                  <Icon name="pencil" />
-                </Button>}/>
+              <Grid.Column verticalAlign="middle">
+                {auction.attachmentUrl && (
+                  <Image src={auction.attachmentUrl} size="medium" wrapped />
+                )}
               </Grid.Column>
-              <Grid.Column width={1} floated="right">
-              <Popup content="Add an image to this auction" trigger={
-                <Button
-                  icon
-                  color="blue"
-                  onClick={() => this.onEditButtonClick(auction.auctionId)}
-                >
-                  <Icon name="image" />
-                </Button>}/>
+              <Grid.Column verticalAlign="top" textAlign='center'>
+                {auction.auctionState}
               </Grid.Column>
-              <Grid.Column width={1} floated="right">
+              <Grid.Column width={1} floated="right" verticalAlign="top">
+                <Popup content="Add items to this auction" trigger={
+                  <Button
+                    icon
+                    color="orange"
+                    disabled={!(auction.auctionState == AuctionState.Created || 
+                                auction.auctionState == AuctionState.OpenForItems)}
+                    onClick={() => this.onAddItemButtonClick(
+                      pos,
+                      auction.auctionId,
+                      auction.name,
+                      auction.auctionState)}
+                  >
+                    <Icon name="pencil" />
+                  </Button>} />
+                <Popup content="Add an image to this auction" trigger={
+                  <Button
+                    icon
+                    color="blue"
+                    disabled={!(auction.auctionState == AuctionState.Created || 
+                                auction.auctionState == AuctionState.OpenForItems)}
+                    onClick={() => this.onEditButtonClick(auction.auctionId)}
+                  >
+                    <Icon name="image" />
+                  </Button>} />
+                  <Popup content="Start this auction" trigger={
+                  <Button
+                    icon
+                    color="green"
+                    disabled={!(auction.auctionState == AuctionState.OpenForItems)}
+                    onClick={() => this.onStartButtonClick(
+                      pos,
+                      auction.auctionId,
+                      auction.name,
+                      auction.auctionState)}
+                  >
+                    <Icon name="caret square right" />
+                  </Button>} />
+                  <Popup content="Stop this auction" trigger={
+                  <Button
+                    icon
+                    color="red"
+                    disabled={!(auction.auctionState == AuctionState.Started)}
+                    onClick={() => this.onStopButtonClick(
+                      pos,
+                      auction.auctionId,
+                      auction.name,
+                      auction.auctionState)}
+                  >
+                    <Icon name="stop" />
+                  </Button>} />
                 <Popup content="Delete auction" trigger={
-                <Button
-                  icon
-                  color="red"
-                  onClick={() => this.onAuctionDelete(auction.auctionId)}
-                >
-                  <Icon name="delete" />
-                </Button>}/>
+                  <Button
+                    icon
+                    color="red"
+                    disabled={!(auction.auctionState == AuctionState.Created || 
+                                auction.auctionState == AuctionState.OpenForItems ||
+                                auction.auctionState == AuctionState.Closed)}
+                    onClick={() => this.onAuctionDelete(auction.auctionId)}
+                  >
+                    <Icon name="delete" />
+                  </Button>} />
+                  <Popup content="See results of this auction" trigger={
+                  <Button
+                    icon
+                    color="blue"
+                    disabled={!(auction.auctionState == AuctionState.Ended)}
+                    onClick={() => this.onResultsButtonClick(
+                      pos,
+                      auction.auctionId,
+                      auction.name,
+                      auction.auctionState)}
+                  >
+                    <Icon name="circle" />
+                  </Button>} />
               </Grid.Column>
-              {auction.attachmentUrl && (
-                <Image src={auction.attachmentUrl} size="small" wrapped />
-              )}
               <Grid.Column width={16}>
                 <Divider />
               </Grid.Column>
