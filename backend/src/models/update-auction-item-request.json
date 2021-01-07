@@ -11,13 +11,17 @@
     },
     "bidValue": {
       "$ref": "#/definitions/non-zero-positive-integer"
+    },
+    "bidUserId": {
+      "$ref": "#/definitions/non-empty-string"
     }
 
   },
   "anyOf": [
     { "required": ["itemName"] },
     { "required": ["description"] },
-    { "required": ["bidValue"] }
+    { "required": ["bidValue"] },
+    { "required": ["bidUserId"] }
   ],
   "additionalProperties": false,
   "definitions": {
