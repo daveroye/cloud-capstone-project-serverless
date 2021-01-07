@@ -188,6 +188,11 @@ functions:
         Action:
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTIONS_TABLE}
+      - Effect: Allow # need permission on auction item table to query and delete items to clear out any associated items before an auction delete
+        Action:
+          - dynamodb:Query
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_ITEMS_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments

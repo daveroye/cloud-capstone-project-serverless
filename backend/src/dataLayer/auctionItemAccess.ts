@@ -10,15 +10,29 @@ export class AuctionItemAccess {
 
     constructor(private readonly auctionItemTable = process.env.AUCTION_ITEMS_TABLE) { }
 
-    async getAuctionItems(auctionId: string): Promise<AuctionItem[]> {
-        logger.info('Getting all auction items')
+    async getAuctionItems(auctionId: string, userId: string, filterType: string): Promise<AuctionItem[]> {
+        let queryParams: DocumentClient.QueryInput
+        if (filterType == "FOR_USER") {
+            logger.info('Getting auction items for user: ', { userId: userId })
 
-        // define query paramaters to be used to get all auction items including a key for pagination
-        const queryParams: DocumentClient.QueryInput =
-        {
-            TableName: this.auctionItemTable,
-            KeyConditionExpression: 'auctionId = :auctionId',
-            ExpressionAttributeValues: { ':auctionId': auctionId }
+            // define query paramaters to be used to get auction items for user including a key for pagination
+            queryParams =
+            {
+                TableName: this.auctionItemTable,
+                KeyConditionExpression: 'auctionId = :auctionId',
+                FilterExpression: 'itemUserId = :itemUserId',
+                ExpressionAttributeValues: { ':auctionId': auctionId, ':itemUserId': userId }
+            }
+        }
+        else if (filterType == "NONE") {
+            // define query paramaters to be used to get all auction items including a key for pagination
+            queryParams =
+            {
+                TableName: this.auctionItemTable,
+                KeyConditionExpression: 'auctionId = :auctionId',
+                ExpressionAttributeValues: { ':auctionId': auctionId }
+            }
+
         }
         return await getItems(queryParams) as AuctionItem[]
     }
@@ -34,7 +48,6 @@ export class AuctionItemAccess {
     async updateAuctionItem(
         auctionId: string,
         itemId: string,
-        userId: string,
         updatedAuctionItem: UpdateAuctionItemRequest
     ): Promise<boolean> {
         let updateParams: DocumentClient.UpdateItemInput
@@ -48,13 +61,15 @@ export class AuctionItemAccess {
                 }
             }
         } else if (updatedAuctionItem.bidValue) {
+            const bidEmail: string = (updatedAuctionItem.bidUserId)?updatedAuctionItem.bidUserId:'not given'
             updateParams = {
                 TableName: this.auctionItemTable,
                 Key: { "auctionId": auctionId, "itemId": itemId },
-                UpdateExpression: "set bidValue=:b, bidUserId=:bu",
+                UpdateExpression: "set bidValue=:b, bidUserId=:bu, forSale=:fs",
                 ExpressionAttributeValues: {
                     ':b': updatedAuctionItem.bidValue,
-                    ':bu': userId
+                    ':bu': bidEmail,
+                    ':fs': true
                 }
             }
         }

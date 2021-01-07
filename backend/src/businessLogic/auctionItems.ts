@@ -6,8 +6,8 @@ import { UpdateAuctionItemRequest } from '../requests/UpdateAuctionItemRequest'
 
 const auctionAccess = new AuctionItemAccess()
 
-export async function getAuctionItems(auctionId: string): Promise<AuctionItem[]> {
-    return auctionAccess.getAuctionItems(auctionId)
+export async function getAuctionItems(auctionId: string, userId: string, filterType: string): Promise<AuctionItem[]> {
+    return auctionAccess.getAuctionItems(auctionId, userId, filterType)
 }
 
 export async function createAuctionItem(
@@ -31,13 +31,11 @@ export async function createAuctionItem(
 export async function udpateAuctionItem(
     updatedAuctionItem: UpdateAuctionItemRequest,
     auctionId: string,
-    itemId: string,
-    userId: string
+    itemId: string
     ): Promise<boolean>  {
     return await auctionAccess.updateAuctionItem(
         auctionId, 
-        itemId, 
-        userId,
+        itemId,
         updatedAuctionItem)
 }
 
