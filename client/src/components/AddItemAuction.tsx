@@ -212,7 +212,7 @@ export class AddItemAuction extends React.PureComponent<
               <Label
                 color='orange'
                 size='big'
-                content='No Auction Items yet for this auction'
+                content='You have added No Auction Items yet for this auction'
               />
             </Grid.Column>
           </Grid.Row>

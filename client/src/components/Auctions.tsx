@@ -338,7 +338,8 @@ export class Auctions extends React.PureComponent<AuctionsProps, AuctionsState> 
                   <Button
                     icon
                     color="blue"
-                    disabled={!(auction.auctionState == AuctionState.Ended)}
+                    disabled={!(auction.auctionState == AuctionState.Ended ||
+                                auction.auctionState == AuctionState.Closed)}
                     onClick={() => this.onResultsButtonClick(
                       pos,
                       auction.auctionId,

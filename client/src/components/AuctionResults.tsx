@@ -115,7 +115,7 @@ AuctionResultsProps,
                   Description: <p>{auctionItem.description}</p>
                 </Label>
               </Grid.Column>
-              <Grid.Column width={3} verticalAlign="middle">
+              <Grid.Column width={3} verticalAlign="top">
                 <Label>
                   Winning Bid ${auctionItem.bidValue}
                 </Label>
