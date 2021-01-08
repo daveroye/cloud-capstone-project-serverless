@@ -7,6 +7,7 @@ import {
   Header,
   Icon,
   Image,
+  Label,
   Loader,
   Popup
 } from 'semantic-ui-react'
@@ -62,7 +63,25 @@ export class OpenAuctions extends React.PureComponent<OpenAuctionsProps, OpenAuc
     if (this.state.loadingAuctions) {
       return this.renderLoading()
     }
-    return this.renderAuctionsList()
+    if (this.state.auctions.length > 0) {
+      return this.renderAuctionsList()
+    } else {
+      return (
+        <Grid padded>
+          <Grid.Row centered>
+            <Grid.Column width={2}>
+            </Grid.Column>
+            <Grid.Column width={8}>
+              <Label
+                color='orange'
+                size='big'
+                content='There are NO Open Auctions to add Items to'
+              />
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
+      )
+    }
   }
 
   renderLoading() {

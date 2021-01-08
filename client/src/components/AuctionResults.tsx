@@ -77,7 +77,7 @@ AuctionResultsProps,
               <Label
                 color='orange'
                 size='big'
-                content='No Auction Items found for this auction'
+                content='No Auction Item Results were Found for this Auction'
               />
             </Grid.Column>
           </Grid.Row>
