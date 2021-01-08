@@ -25,8 +25,6 @@ The application should store auction items, and each auction item contains the f
     "CLOSED"            // All items claimed and auction is finished
   ]
 ```
-* `startedAt` (string) (optional until auction started) - date and time when auction was started
-* `endedAt` (string) (optional until auction ended) - date and time when auction was ended
 
 # Auction Event Functions implemented
 
@@ -130,7 +128,6 @@ The application should store item for each auction, and each auction item contai
 * `itemUserId` (string) - id of the user that created this auction item
 * `createdAt` (string) - date and time when an item was created
 * `itemName` (string) - name of a silent auction item (e.g. "Opera tickets")
-* `forSale` (boolean) - indicates the item has a starting bid and can be including in the auction for sale
 * `bidValue` (number) - amount in dollars that is bid for the item
 * `bidUserId` (string) - the user ID of the bidder
 * `description` (sting) - a description of the auction item
@@ -154,7 +151,6 @@ It should return data that looks like this:
       "itemUserId": "Doodle-13423",
       "createdAt": "2021-07-27T20:01:45.424Z",
       "itemName": "Tennis Racket",
-      "forSale": "true",
       "attachmentUrl": "http://example.com/image.png"
     },
     {
@@ -163,7 +159,6 @@ It should return data that looks like this:
       "itemUserId": "Poodle-56756",
       "createdAt": "2020-07-27T20:01:45.424Z",
       "itemName": "Painting of Frog",
-      "forSale": "false",
       "attachmentUrl": "http://example.com/image.png"
     },
   ]
@@ -192,7 +187,6 @@ It should return a new Auction item that looks like this:
     "itemUserId": "Fred-345345",
     "createdAt": "2019-07-27T20:01:45.424Z",
     "itemName": "Pencil",
-    "forSale": "false",
     "attachmentUrl": "http://example.com/image.png"
   }
 }

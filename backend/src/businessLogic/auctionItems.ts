@@ -23,8 +23,7 @@ export async function createAuctionItem(
         itemId: itemId,
         itemUserId: itemUserId,
         createdAt: new Date().toISOString(),
-        itemName: newAuction.itemName,
-        forsale: false
+        itemName: newAuction.itemName
     })
 }
 

@@ -65,11 +65,10 @@ export class AuctionItemAccess {
             updateParams = {
                 TableName: this.auctionItemTable,
                 Key: { "auctionId": auctionId, "itemId": itemId },
-                UpdateExpression: "set bidValue=:b, bidUserId=:bu, forSale=:fs",
+                UpdateExpression: "set bidValue=:b, bidUserId=:bu",
                 ExpressionAttributeValues: {
                     ':b': updatedAuctionItem.bidValue,
-                    ':bu': bidEmail,
-                    ':fs': true
+                    ':bu': bidEmail
                 }
             }
         }
