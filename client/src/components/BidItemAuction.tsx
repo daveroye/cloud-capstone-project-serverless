@@ -54,11 +54,11 @@ export class BidItemAuction extends React.PureComponent<
     this.setState({ newBidEmail: event.target.value, bidChanged: true })
   }
 
-  onBidChange = async (itemId: string, pos: number) => {
+  onBidChange = async (itemId: string, pos: number, currentBid: number) => {
     if (this.state.bidChanged) {
       const updatedBid = 
         (this.state.newBid)?
-          this.state.newBid:
+          this.state.newBid + currentBid:
           this.state.auctionItems[pos].bidValue
       const updatedBidEmail = 
         (this.state.newBidEmail)?
@@ -168,25 +168,30 @@ export class BidItemAuction extends React.PureComponent<
                   </Label>
               </Grid.Column>
               <Grid.Column width={3} verticalAlign="middle">
-                <Form onSubmit={() => this.onBidChange(auctionItem.itemId, pos)}>
-                  <Label>
-                    Bid $:
-                     <Input
+                <b>Current Bid ${auctionItem.bidValue}</b>
+                <Form onSubmit={() => this.onBidChange(
+                  auctionItem.itemId, 
+                  pos, 
+                  (auctionItem.bidValue)?auctionItem.bidValue:0
+                  )}>
+                  <Label>Increase Bid($):</Label>
+                  <Input
+                      fluid
+                      required
+                      min="1"
+                      max="100"
                       type='number'
-                      defaultValue={auctionItem.bidValue}
                       placeholder="10"
-                      onChange={(e) => this.handleBidChange(e)}
-                    />
-                    Email:
-                     <Input
+                      onChange={(e) => this.handleBidChange(e)}/>
+                  <Label>Your Email:</Label>
+                  <Input
+                      fluid
+                      required
                       type='email'
-                      defaultValue={auctionItem.bidUserId}
                       placeholder="someone@yahoo.com"
-                      onChange={(e) => this.handleBidEmailChange(e)}
-                    />
-                    <Label color='green'>
+                      onChange={(e) => this.handleBidEmailChange(e)}/>
+                  <Label color='green'>
                       <Input type="submit" value="Change Bid" />
-                    </Label>
                   </Label>
                 </Form>
               </Grid.Column>

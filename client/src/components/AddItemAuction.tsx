@@ -247,10 +247,10 @@ export class AddItemAuction extends React.PureComponent<
               </Grid.Column>
               <Grid.Column width={6} verticalAlign="top">
                 <Form onSubmit={() => this.onDescriptionChange(auctionItem.itemId, pos)}>
-                  <Label>
-                    Description:
+                  <Label>Description:</Label>
                      <TextArea
                       type='text'
+                      required
                       defaultValue={auctionItem.description}
                       placeholder="Almost new, barely used..."
                       onChange={(e) => this.handleDescriptionChange(e)}
@@ -258,15 +258,15 @@ export class AddItemAuction extends React.PureComponent<
                     <Label color='blue'>
                       <Input type="submit" value="Submit Changes" />
                     </Label>
-                  </Label>
                 </Form>
               </Grid.Column>
-              <Grid.Column width={1} verticalAlign="middle">
+              <Grid.Column width={2} verticalAlign="middle">
                 <Form onSubmit={() => this.onBidChange(auctionItem.itemId, pos)}>
-                  <Label>
-                    Set Starting Bid $:
+                  <Label>Starting Bid $:</Label>
                      <Input
                       type='number'
+                      required
+                      min='1'
                       defaultValue={auctionItem.bidValue}
                       placeholder="10"
                       onChange={(e) => this.handleBidChange(e)}
@@ -274,7 +274,6 @@ export class AddItemAuction extends React.PureComponent<
                     <Label color='green'>
                       <Input type="submit" value="Change Bid" />
                     </Label>
-                  </Label>
                 </Form>
               </Grid.Column>
               <Grid.Column width={1} floated="right">
