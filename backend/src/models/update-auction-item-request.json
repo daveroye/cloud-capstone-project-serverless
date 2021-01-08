@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "update-auction-item",
+  "type": "object",
+  "properties": {
+    "itemName": {
+      "$ref": "#/definitions/non-empty-string"
+    },
+    "description": {
+      "$ref": "#/definitions/non-empty-string"
+    },
+    "bidValue": {
+      "$ref": "#/definitions/non-zero-positive-integer"
+    },
+    "bidUserId": {
+      "$ref": "#/definitions/non-empty-string"
+    }
+
+  },
+  "anyOf": [
+    { "required": ["itemName"] },
+    { "required": ["description"] },
+    { "required": ["bidValue"] },
+    { "required": ["bidUserId"] }
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "non-empty-string": {
+      "type": "string",
+      "minLength": 1
+    },
+    "non-zero-positive-integer": {
+        "type": "integer",
+        "minimum": 1
+    }
+  }
+}

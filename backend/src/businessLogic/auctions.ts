@@ -1,19 +1,19 @@
 import * as uuid from 'uuid'
-import { AuctionItem, AuctionState } from '../models/AuctionItem'
+import { Auction, AuctionState } from '../models/Auction'
 import { AuctionAccess } from '../dataLayer/auctionAccess'
 import { CreateAuctionRequest } from '../requests/CreateAuctionRequest'
 import { UpdateAuctionRequest } from '../requests/UpdateAuctionRequest'
 
 const auctionAccess = new AuctionAccess()
 
-export async function getAuctions(userId: string): Promise<AuctionItem[]> {
-    return auctionAccess.getAuctions(userId)
+export async function getAuctions(userId: string, auctionType: string): Promise<Auction[]> {
+    return auctionAccess.getAuctions(userId, auctionType)
 }
 
 export async function createAuction(
     newAuction: CreateAuctionRequest,
     userId: string
-): Promise<AuctionItem> {
+): Promise<Auction> {
 
     const auctionId = uuid.v4()
 
@@ -38,5 +38,5 @@ export async function deleteAuction(userId: string, auctionId: string): Promise<
 }
 
 export async function generateUploadUrl(userId: string, auctionId: string): Promise<string> {
-    return await auctionAccess.generateUploadUrl(userId, auctionId)
+    return await auctionAccess.generateAuctionUploadUrl(userId, auctionId)
 }

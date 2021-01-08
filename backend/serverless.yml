@@ -23,6 +23,8 @@ provider:
   environment:
     AUCTIONS_TABLE: MySilentAuction-Table-v4-${self:provider.stage}
     AUCTION_INDEX_NAME: MySilentAuction-Index-v4-${self:provider.stage}
+    AUCTION_GSI_NAME: MySilentAuction-GSI-v4-${self:provider.stage}
+    AUCTION_ITEMS_TABLE: MySilentAuctionItems-Table-v1-${self:provider.stage}
     IMAGES_S3_BUCKET: serverless-mysilentauction-images-droye6245-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
@@ -58,6 +60,29 @@ functions:
           - xray:PutTelemetryRecords
         Resource: "*"
 
+  GetAuctionItems:
+    handler: src/lambda/http/getAuctionItems.handler
+    events:
+      - http:
+          method: get
+          path: auctions/{auctionId}
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_ITEMS_TABLE}
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: "arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*"
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: "*"
+
   CreateAuction:
     handler: src/lambda/http/createAuction.handler
     events:
@@ -75,6 +100,29 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTIONS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: "*"
+
+  CreateAuctionItem:
+    handler: src/lambda/http/createAuctionItem.handler
+    events:
+      - http:
+          method: post
+          path: auctions/{auctionId}
+          cors: true
+          authorizer: Auth
+          request:
+            # Schema that will be used to validate incoming requests
+            schema:
+              application/json: ${file(src/models/create-auction-item-request.json)}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_ITEMS_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
@@ -104,6 +152,29 @@ functions:
           - xray:PutTelemetryRecords
         Resource: "*"
 
+  UpdateAuctionItem:
+    handler: src/lambda/http/updateAuctionItem.handler
+    events:
+      - http:
+          method: patch
+          path: auctions/{auctionId}/{itemId}
+          cors: true
+          authorizer: Auth
+          request:
+            # Schema that will be used to validate incoming requests
+            schema:
+              application/json: ${file(src/models/update-auction-item-request.json)}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_ITEMS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: "*"
+
   DeleteAuction:
     handler: src/lambda/http/deleteAuction.handler
     events:
@@ -117,6 +188,30 @@ functions:
         Action:
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTIONS_TABLE}
+      - Effect: Allow # need permission on auction item table to query and delete items to clear out any associated items before an auction delete
+        Action:
+          - dynamodb:Query
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_ITEMS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: "*"
+
+  DeleteAuctionItem:
+    handler: src/lambda/http/deleteAuctionItem.handler
+    events:
+      - http:
+          method: delete
+          path: auctions/{auctionId}/{itemId}
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_ITEMS_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
@@ -136,6 +231,31 @@ functions:
         Action:
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTIONS_TABLE}
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+        Resource: "arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*"
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: "*"
+
+  GenerateItemUploadUrl:
+    handler: src/lambda/http/generateItemUploadUrl.handler
+    events:
+      - http:
+          method: post
+          path: auctions/{auctionId}/{itemId}/attachment
+          cors: true
+          authorizer: Auth
+    iamRoleStatementsName: serverless-mySilentAuction-app-dev-GenItmUpldUrl-us-east-2
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.AUCTION_ITEMS_TABLE}
       - Effect: Allow
         Action:
           - s3:PutObject
@@ -186,6 +306,29 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL # What attributes will be copied to an index
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.AUCTION_GSI_NAME}
+            KeySchema:
+              - AttributeName: auctionState
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL # What attributes will be copied to an index
+
+    AuctionItemsDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: auctionId
+            AttributeType: S
+          - AttributeName: itemId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: auctionId
+            KeyType: HASH
+          - AttributeName: itemId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.AUCTION_ITEMS_TABLE}
 
     AttachmentsBucket:
       Type: AWS::S3::Bucket

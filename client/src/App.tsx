@@ -1,12 +1,17 @@
 import React, { Component } from 'react'
 import { Link, Route, Router, Switch } from 'react-router-dom'
 import { Grid, Menu, Segment } from 'semantic-ui-react'
-
 import Auth from './auth/Auth'
 import { EditAuction } from './components/EditAuction'
+import { AddItemAuction } from './components/AddItemAuction'
+import { BidItemAuction } from './components/BidItemAuction'
+import { EditAuctionItem } from './components/AddImageAuctionItem'
 import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
 import { Auctions } from './components/Auctions'
+import { OpenAuctions } from './components/OpenAuctions'
+import { OngoingAuctions } from './components/OngoingAuctions'
+import { AuctionResults } from './components/AuctionResults'
 
 export interface AppProps {}
 
@@ -57,9 +62,14 @@ export default class App extends Component<AppProps, AppState> {
     return (
       <Menu>
         <Menu.Item name="home">
-          <Link to="/">Home</Link>
+          <Link to="/">My Auctions</Link>
         </Menu.Item>
-
+        <Menu.Item name="open_auctions">
+          <Link to="/openAuctions">Open Auctions</Link>
+        </Menu.Item>
+        <Menu.Item name="ongoing_auctions">
+          <Link to="/ongoingAuctions">Ongoing Auctions</Link>
+        </Menu.Item>
         <Menu.Menu position="right">{this.logInLogOutButton()}</Menu.Menu>
       </Menu>
     )
@@ -97,10 +107,58 @@ export default class App extends Component<AppProps, AppState> {
         />
 
         <Route
+          path="/openAuctions"
+          exact
+          render={props => {
+            return <OpenAuctions {...props} auth={this.props.auth} />
+          }}
+        />
+
+        <Route
+          path="/ongoingAuctions"
+          exact
+          render={props => {
+            return <OngoingAuctions {...props} auth={this.props.auth} />
+          }}
+        />
+
+        <Route
           path="/auctions/:auctionId/edit"
           exact
           render={props => {
             return <EditAuction {...props} auth={this.props.auth} />
+          }}
+        />
+
+        <Route
+          path="/auctions/:auctionId/addItem/:auctionName"
+          exact
+          render={props => {
+            return <AddItemAuction {...props} auth={this.props.auth} />
+          }}
+        />
+
+        <Route
+          path="/auctions/:auctionId/auctionResults/:auctionName"
+          exact
+          render={props => {
+            return <AuctionResults {...props} auth={this.props.auth} />
+          }}
+        />
+
+        <Route
+          path="/auctions/:auctionId/bidItem/:auctionName"
+          exact
+          render={props => {
+            return <BidItemAuction {...props} auth={this.props.auth} />
+          }}
+        />
+
+        <Route
+          path="/auctions/:auctionId/:itemId/edit"
+          exact
+          render={props => {
+            return <EditAuctionItem {...props} auth={this.props.auth} />
           }}
         />
 

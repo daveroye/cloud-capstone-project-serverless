@@ -1,4 +1,4 @@
-import { AuctionState } from '../models/AuctionItem'
+import { AuctionState } from '../models/Auction'
 
 /**
  * Fields in a request to update a single auction item.

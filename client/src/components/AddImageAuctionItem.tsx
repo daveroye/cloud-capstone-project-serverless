@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Form, Button } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
 import { History } from 'history'
-import { getUploadUrl, uploadFile } from '../api/auctions-api'
+import { getItemUploadUrl, uploadFile } from '../api/auctions-api'
 
 enum UploadState {
   NoUpload,
@@ -10,26 +10,27 @@ enum UploadState {
   UploadingFile,
 }
 
-interface EditAuctionProps {
+interface EditAuctionItemProps {
   match: {
     params: {
       auctionId: string
+      itemId: string
     }
   }
   history: History
   auth: Auth
 }
 
-interface EditAuctionState {
+interface EditAuctionItemState {
   file: any
   uploadState: UploadState
 }
 
-export class EditAuction extends React.PureComponent<
-  EditAuctionProps,
-  EditAuctionState
+export class EditAuctionItem extends React.PureComponent<
+  EditAuctionItemProps,
+  EditAuctionItemState
 > {
-  state: EditAuctionState = {
+  state: EditAuctionItemState = {
     file: undefined,
     uploadState: UploadState.NoUpload
   }
@@ -53,7 +54,11 @@ export class EditAuction extends React.PureComponent<
       }
 
       this.setUploadState(UploadState.FetchingPresignedUrl)
-      const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), this.props.match.params.auctionId)
+      const uploadUrl = await getItemUploadUrl(
+        this.props.auth.getIdToken(), 
+        this.props.match.params.auctionId,
+        this.props.match.params.itemId
+        )
 
       this.setUploadState(UploadState.UploadingFile)
       await uploadFile(uploadUrl, this.state.file)
